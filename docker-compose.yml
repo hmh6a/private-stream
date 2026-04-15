@@ -5,7 +5,7 @@ services:
     build:
       context: ./nginx
     ports:
-      - "${PORT:-8888}:80"
+      - "${NGINX_PORT:-8888}:80"
     volumes:
       - hls_data:/data/hls:ro
     depends_on:
@@ -17,8 +17,9 @@ services:
     build:
       context: ./backend
     ports:
-      - "3005:3001"
+      - "${BACKEND_PORT:-3005}:3001"
     environment:
+      - PORT=3001
       - JWT_SECRET=${JWT_SECRET:-supersecretjwt}
       - HLS_OUTPUT_DIR=/data/hls
       - CORS_ORIGIN=${PUBLIC_APP_URL:-*}
@@ -32,8 +33,9 @@ services:
     build:
       context: ./frontend
     ports:
-      - "3006:3000"
+      - "${FRONTEND_PORT:-3006}:3000"
     environment:
+      - PORT=3000
       - NUXT_PUBLIC_API_URL=${PUBLIC_APP_URL:-}/api
       - NUXT_PUBLIC_WS_URL=${PUBLIC_APP_URL:-}
     restart: unless-stopped
