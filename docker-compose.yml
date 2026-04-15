@@ -36,8 +36,8 @@ services:
       - "${FRONTEND_PORT:-3006}:3000"
     environment:
       - PORT=3000
-      - NUXT_PUBLIC_API_URL=${PUBLIC_APP_URL:-}/api
-      - NUXT_PUBLIC_WS_URL=${PUBLIC_APP_URL:-}
+      - NUXT_PUBLIC_API_URL=/api
+      - NUXT_PUBLIC_WS_URL=
     restart: unless-stopped
 
 volumes:
