@@ -14,6 +14,11 @@ async function bootstrap() {
   // Serve HLS locally if accessed directly without nginx in dev
   app.use('/hls', express.static(process.env.HLS_OUTPUT_DIR || '/data/hls'));
   
-  await app.listen(process.env.PORT || 3001);
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+  
+  console.log(`\n=========================================`);
+  console.log(`✅ BACKEND SERVICE STARTED ON PORT ${port}`);
+  console.log(`=========================================\n`);
 }
 bootstrap();
