@@ -1,48 +1,33 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable } from '@nestjs/common';
 import { RelayService } from './relay.service';
 
 @Injectable()
-export class StreamService implements OnModuleInit {
-  constructor(private prisma: PrismaService, private relay: RelayService) {}
+export class StreamService {
+  private inMemorySourceUrl: string | null = null;
+  private inMemoryName: string | null = null;
 
-  async onModuleInit() {
-    const active = await this.prisma.streamSource.findFirst({ where: { isActive: true } });
-    if (active && process.env.AUTO_RESUME_STREAM === 'true') {
-      try { await this.relay.startRelay(active.sourceUrl); } 
-      catch (e) { console.error('Failed auto-resume', e); }
-    }
+  constructor(private relay: RelayService) {}
+
+  getCurrent() {
+    if (!this.inMemorySourceUrl) return null;
+    return { sourceUrl: this.inMemorySourceUrl, name: this.inMemoryName, isActive: true };
   }
 
-  async getCurrent() {
-    return this.prisma.streamSource.findFirst({ where: { isActive: true } });
-  }
-
-  async setCurrent(url: string, name?: string) {
-    await this.prisma.streamSource.updateMany({ data: { isActive: false } });
-    
-    let source = await this.prisma.streamSource.findFirst({ where: { sourceUrl: url } });
-    if (!source) {
-       source = await this.prisma.streamSource.create({ data: { sourceUrl: url, name, isActive: true } });
-    } else {
-       source = await this.prisma.streamSource.update({
-         where: { id: source.id },
-         data: { isActive: true, name: name || source.name }
-       });
-    }
+  setCurrent(url: string, name?: string) {
+    this.inMemorySourceUrl = url;
+    this.inMemoryName = name || 'Stream';
 
     if (this.relay.status === 'running' || this.relay.status === 'error') {
        this.relay.stopRelay();
        setTimeout(() => this.relay.startRelay(url), 2000);
     }
 
-    return source;
+    return this.getCurrent();
   }
   
-  async start() {
-    const current = await this.getCurrent();
-    if (!current) throw new Error('No stream source configured');
-    await this.relay.startRelay(current.sourceUrl);
+  start() {
+    if (!this.inMemorySourceUrl) throw new Error('No active stream source configured. Please input one first.');
+    this.relay.startRelay(this.inMemorySourceUrl);
     return { success: true };
   }
 
@@ -51,14 +36,18 @@ export class StreamService implements OnModuleInit {
     return { success: true };
   }
 
-  async restart() {
-    const current = await this.getCurrent();
-    if (!current) throw new Error('No stream source configured');
+  restart() {
+    if (!this.inMemorySourceUrl) throw new Error('No stream source configured');
     this.relay.stopRelay();
-    setTimeout(() => this.relay.startRelay(current.sourceUrl), 2000);
+    setTimeout(() => this.relay.startRelay(this.inMemorySourceUrl!), 2000);
     return { success: true };
   }
 
-  getStatus() { return this.relay.getStatus(); }
-  getLogs() { return this.relay.getLogs(); }
+  getStatus() {
+    return this.relay.getStatus();
+  }
+
+  getLogs() {
+    return this.relay.getLogs();
+  }
 }

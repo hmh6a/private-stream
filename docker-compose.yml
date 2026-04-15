@@ -1,23 +1,6 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: ${DB_USER:-admin}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-      POSTGRES_DB: ${DB_NAME:-stream_relay}
-    ports:
-      - "5434:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-admin} -d ${DB_NAME:-stream_relay}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
   nginx:
     build:
       context: ./nginx
@@ -36,18 +19,13 @@ services:
     ports:
       - "3005:3001"
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-password}@postgres:5432/${DB_NAME:-stream_relay}?schema=public
       - JWT_SECRET=${JWT_SECRET:-supersecretjwt}
       - HLS_OUTPUT_DIR=/data/hls
       - CORS_ORIGIN=${PUBLIC_APP_URL:-*}
       - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
-      - AUTO_RESUME_STREAM=${AUTO_RESUME_STREAM:-true}
     volumes:
       - hls_data:/data/hls
-    depends_on:
-      postgres:
-        condition: service_healthy
     restart: unless-stopped
 
   frontend:
@@ -61,5 +39,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
   hls_data:
