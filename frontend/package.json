@@ -1,0 +1,19 @@
+{
+  "name": "stream-relay-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "hls.js": "^1.4.12",
+    "nuxt": "^3.8.0",
+    "socket.io-client": "^4.7.2",
+    "vue": "^3.3.8",
+    "vue-router": "^4.2.5"
+  }
+}
