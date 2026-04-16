@@ -66,14 +66,20 @@ export class RelayService implements OnModuleInit, OnModuleDestroy {
     }
 
     const args = [
-      '-y', '-re',
+      '-y',
+      '-headers', 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\r\n',
+      '-reconnect', '1',
+      '-reconnect_at_eof', '1',
+      '-reconnect_streamed', '1',
+      '-reconnect_delay_max', '2',
       '-i', sourceUrl,
-      '-c:v', 'copy',
-      '-c:a', 'copy',
+      '-c', 'copy',
+      '-map', '0',
+      '-ignore_unknown',
       '-f', 'hls',
       '-hls_time', '4',
       '-hls_list_size', '5',
-      '-hls_flags', 'delete_segments+append_list',
+      '-hls_flags', 'delete_segments',
       indexPath
     ];
 

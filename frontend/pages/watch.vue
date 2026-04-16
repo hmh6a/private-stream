@@ -38,9 +38,32 @@ function initPlayer() {
 
   if (Hls.isSupported()) {
     if(hls) hls.destroy()
-    hls = new Hls()
+    hls = new Hls({
+      manifestLoadingMaxRetry: 10,
+      manifestLoadingRetryDelay: 1000,
+    })
     hls.loadSource(src)
     hls.attachMedia(videoPlayer.value)
+    
+    hls.on(Hls.Events.ERROR, (event, data) => {
+      if (data.fatal) {
+        switch (data.type) {
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            console.log('Fatal network error, trying to recover...')
+            hls.startLoad()
+            break
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            console.log('Fatal media error, trying to recover...')
+            hls.recoverMediaError()
+            break
+          default:
+            console.log('Unrecoverable error')
+            hls.destroy()
+            break
+        }
+      }
+    })
+
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       videoPlayer.value.play().catch(()=>console.log('Autoplay blocked'))
     })
