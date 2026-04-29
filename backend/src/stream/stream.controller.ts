@@ -12,9 +12,9 @@ export class StreamController {
 
   @Put('current')
   @UseGuards(JwtAuthGuard)
-  setCurrent(@Body() body: { url: string; name?: string }) {
+  async setCurrent(@Body() body: { url: string; name?: string }) {
     if(!body.url) throw new Error('URL is required');
-    return this.streamService.setCurrent(body.url, body.name);
+    return await this.streamService.setCurrent(body.url, body.name);
   }
 
   @Post('start')
