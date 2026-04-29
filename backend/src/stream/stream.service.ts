@@ -14,12 +14,14 @@ export class StreamService {
   }
 
   setCurrent(url: string, name?: string) {
-    this.inMemorySourceUrl = url;
+    // Strip blob: prefix if present
+    const sanitizedUrl = url.startsWith('blob:') ? url.substring(5) : url;
+    this.inMemorySourceUrl = sanitizedUrl;
     this.inMemoryName = name || 'Stream';
 
     if (this.relay.status === 'running' || this.relay.status === 'error') {
        this.relay.stopRelay();
-       setTimeout(() => this.relay.startRelay(url), 2000);
+       setTimeout(() => this.relay.startRelay(sanitizedUrl), 2000);
     }
 
     return this.getCurrent();

@@ -8,7 +8,7 @@
       </div>
       <form @submit.prevent="saveSource">
         <label>Stream Source URL (Authorized only):</label>
-        <input type="url" v-model="sourceUrl" placeholder="http://example.com/stream.m3u8" required />
+        <input type="text" v-model="sourceUrl" placeholder="http://example.com/stream.m3u8" required />
         <div style="display: flex; gap: 1rem; margin-top: 1rem;">
           <button type="submit">Save & Restart Relay</button>
           <button type="button" class="secondary" @click="action('start')" :disabled="status.status === 'running'">Start</button>
